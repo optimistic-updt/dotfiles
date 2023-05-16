@@ -19,78 +19,68 @@ while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
 # Kev's Customizations                                                       #
 ###############################################################################
 
-# echo "Hello $(whoami)! Let's get you set up."
+echo "Hello $(whoami)! Let's get you set up."
 
-# echo "mkdir -p ${HOME}/code"
-# mkdir -p "${HOME}/code"
+echo "mkdir -p ${HOME}/code"
+mkdir -p "${HOME}/code"
 
-# echo "installing homebrew"
-# # install homebrew https://brew.sh
-# /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+echo "installing homebrew"
+# install homebrew https://brew.sh
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 
-# # Homebrew will tell you to run these two commands
-# (echo; echo 'eval "$(/usr/local/bin/brew shellenv)"') >> /Users/kevin/.zprofile
-# eval "$(/usr/local/bin/brew shellenv)"
+# Homebrew will tell you to run these two commands
+(echo; echo 'eval "$(/usr/local/bin/brew shellenv)"') >> /Users/kevin/.zprofile
+eval "$(/usr/local/bin/brew shellenv)"
 
-# echo "brew installing stuff"
-# # tree: really handy for listing out directories in text
-# # bat: A cat(1) clone with syntax highlighting and Git integration.
-# # delta: A fantastic diff tool
-# # switchaudio-osx: allows me to switch the audio device via the command line
-# # pgcli: postgres CLI
-# brew install pgcli
+echo "brew installing stuff"
+# tree: really handy for listing out directories in text
+# bat: A cat(1) clone with syntax highlighting and Git integration.
+# delta: A fantastic diff tool
+# switchaudio-osx: allows me to switch the audio device via the command line
+# pgcli: postgres CLI
+brew install pgcli
 
-# # TODO replace eversion number wih something more long term
-# echo "installing node (via NVM)" 
-# curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash
+# TODO replace eversion number wih something more long term
+echo "installing node (via NVM)" 
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash
 
-# export NVM_DIR="$HOME/.nvm"
-# [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-# [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
-# # installs Node
-# nvm install node # "node" is an alias for the latest version
-# nvm install --lts # alias for Long tiem support
+# installs Node
+nvm install node # "node" is an alias for the latest version
+nvm install --lts # alias for Long term support
 
-# echo "node --version: $(node --version)"
-# echo "npm --version: $(npm --version)"
+echo "node --version: $(node --version)"
+echo "npm --version: $(npm --version)"
 
-# echo "installing a few global npm packages"
-# npm install --global serve fkill-cli nx@latest
+echo "installing a few global npm packages"
+npm install --global serve fkill-cli nx@latest
 
-# echo "installing apps with brew --cask"
-# brew install --cask spectacle google-chrome firefox brave-browser \
-# visual-studio-code vlc discord zoom spotify dropbox slack docker \
-# qlcolorcode qlmarkdown qlstephen quicklook-json webpquicklook \
-# notion messenger asana google-drive
+echo "installing apps with brew --cask"
+brew install --cask spectacle google-chrome firefox brave-browser \
+visual-studio-code vlc discord zoom spotify dropbox slack docker \
+qlcolorcode qlmarkdown qlstephen quicklook-json webpquicklook \
+notion messenger asana google-drive
 
-# echo "Generating a new SSH key for GitHub"
-# ssh-keygen -t ed25519 -C "kev4tech@gmail.com" -f ~/.ssh/id_ed25519
-# eval "$(ssh-agent -s)"
-# touch ~/.ssh/config
-# echo "Host *\n AddKeysToAgent yes\n UseKeychain yes\n IdentityFile ~/.ssh/id_ed25519" | tee ~/.ssh/config
-# ssh-add -K ~/.ssh/id_ed25519
-# echo "run 'pbcopy < ~/.ssh/id_ed25519.pub' and paste that into GitHub"
+echo "Generating a new SSH key for GitHub"
+ssh-keygen -t ed25519 -C "kev4tech@gmail.com" -f ~/.ssh/id_ed25519
+eval "$(ssh-agent -s)"
+touch ~/.ssh/config
+echo "Host *\n AddKeysToAgent yes\n UseKeychain yes\n IdentityFile ~/.ssh/id_ed25519" | tee ~/.ssh/config
+ssh-add -K ~/.ssh/id_ed25519
+echo "run 'pbcopy < ~/.ssh/id_ed25519.pub' and paste that into GitHub"
 
-# echo "cloning dotfiles"
-# git clone git@github.com:optimistic-updt/dotfiles.git "${HOME}/dotfiles"
-# ln -s "${HOME}/dotfiles/.zshrc" "${HOME}/.zshrc"
-# ln -s "${HOME}/dotfiles/.gitignore_global" "${HOME}/.gitignore_global"
-# #ln -s "${HOME}/dotfiles/.gitconfig" "${HOME}/.gitconfig"
+echo "cloning dotfiles"
+git clone git@github.com:optimistic-updt/dotfiles.git "${HOME}/dotfiles"
+ln -s "${HOME}/dotfiles/.zshrc" "${HOME}/.zshrc"
+ln -s "${HOME}/dotfiles/.gitignore_global" "${HOME}/.gitignore_global"
+#ln -s "${HOME}/dotfiles/.gitconfig" "${HOME}/.gitconfig"
 
-# echo "OK, let's get your terminal set up!"
-# #download oh-my-zsh
-# sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
-
-# ### TODO GOT TO HERE ###
-# ###############################################################################
-# # TODO 
-# # Setup VScode (download font)                                               
-# # setup terminal
-# # Browser get bookmarks from somewhere
-# # Can you Download extensions for brave
-# # yarn?
-# ###############################################################################
+echo "OK, let's get your terminal set up!"
+#download oh-my-zsh
+sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 
 echo "making system modifications:"
 
@@ -422,8 +412,8 @@ defaults write com.apple.finder FXInfoPanesExpanded -dict \
 # Enable highlight hover effect for the grid view of a stack (Dock)
 defaults write com.apple.dock mouse-over-hilite-stack -bool true
 
-# Set the icon size of Dock items to 16 pixels
-defaults write com.apple.dock tilesize -int 16
+# Set the icon size of Dock items to 24 pixels
+defaults write com.apple.dock tilesize -int 24
 
 # Change minimize/maximize window effect
 defaults write com.apple.dock mineffect -string "scale"
@@ -498,19 +488,19 @@ defaults write com.apple.dock showhidden -bool true
 # 10: Put display to sleep
 # 11: Launchpad
 # 12: Notification Center
-# 1048576 is ⌘ I think
+# NOTE: "defaults write com.apple.dock wvous-tl-modifier -int 1048576" adds the ⌘ modifier key to hot corners
 # Top left screen corner → Desktop
 defaults write com.apple.dock wvous-tl-corner -int 4
-defaults write com.apple.dock wvous-tl-modifier -int 1048576
+# defaults write com.apple.dock wvous-tl-modifier -int 1048576
 # Top right screen corner → Desktop
 defaults write com.apple.dock wvous-tr-corner -int 4
-defaults write com.apple.dock wvous-tr-modifier -int 1048576
+# defaults write com.apple.dock wvous-tr-modifier -int 1048576
 # Bottom left screen corner → Mission Control
 defaults write com.apple.dock wvous-bl-corner -int 2
-defaults write com.apple.dock wvous-bl-modifier -int 1048576
+# defaults write com.apple.dock wvous-bl-modifier -int 1048576
 # Bottom right screen corner → Mission Control
 defaults write com.apple.dock wvous-br-corner -int 2
-defaults write com.apple.dock wvous-br-modifier -int 1048576
+# defaults write com.apple.dock wvous-br-modifier -int 1048576
 
 ###############################################################################
 # Safari & WebKit                                                             #
@@ -799,10 +789,16 @@ echo "Done. Note that some of these changes require a logout/restart to take eff
 
 
 printf "TODO:\n\
-install: \n\
-  battery indicator (App Store) \n\
-  Runcat (App Store) \n\
-\n\
 Restart Terminal.app\n\
 login to literally everything \n\
 "
+
+# ### TODO GOT TO HERE ###
+# ###############################################################################
+# # TODO 
+# # Setup VScode (download font)                                               
+# # setup terminal
+# # Browser get bookmarks from somewhere
+# # Can you Download extensions for brave
+# # yarn?
+# ###############################################################################
