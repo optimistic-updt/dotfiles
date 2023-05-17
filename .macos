@@ -38,7 +38,7 @@ echo "brew installing stuff"
 # delta: A fantastic diff tool
 # switchaudio-osx: allows me to switch the audio device via the command line
 # pgcli: postgres CLI
-brew install pgcli
+brew install pgcli bat
 
 # TODO replace eversion number wih something more long term
 echo "installing node (via NVM)" 
@@ -78,13 +78,19 @@ ln -s "${HOME}/dotfiles/.zshrc" "${HOME}/.zshrc"
 ln -s "${HOME}/dotfiles/.gitignore_global" "${HOME}/.gitignore_global"
 #ln -s "${HOME}/dotfiles/.gitconfig" "${HOME}/.gitconfig"
 
+# Terminal setup
 echo "OK, let's get your terminal set up!"
-#download oh-my-zsh
+echo "Downloading oh-my"
 sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
-#Get Fira-code font
-brew tap homebrew/cask-fonts
-brew install --cask font-fira-code
 
+echo "getting your powerline fonts"
+git clone https://github.com/powerline/fonts.git --depth=1
+cd fonts
+./install.sh
+cd ..
+rm -rf fonts
+
+# # # # # #
 echo "making system modifications:"
 
 ###############################################################################
