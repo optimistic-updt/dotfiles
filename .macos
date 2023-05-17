@@ -81,6 +81,9 @@ ln -s "${HOME}/dotfiles/.gitignore_global" "${HOME}/.gitignore_global"
 echo "OK, let's get your terminal set up!"
 #download oh-my-zsh
 sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+#Get Fira-code font
+brew tap homebrew/cask-fonts
+brew install --cask font-fira-code
 
 echo "making system modifications:"
 
@@ -790,13 +793,13 @@ echo "Done. Note that some of these changes require a logout/restart to take eff
 
 printf "TODO:\n\
 Restart Terminal.app\n\
+turn on "setting Sync" in VSCode \n
 login to literally everything \n\
 "
 
 # ### TODO GOT TO HERE ###
 # ###############################################################################
-# # TODO 
-# # Setup VScode (download font)                                               
+# # TODO                                             
 # # setup terminal
 # # Browser get bookmarks from somewhere
 # # Can you Download extensions for brave
