@@ -38,7 +38,7 @@ echo "brew installing stuff"
 # delta: A fantastic diff tool
 # switchaudio-osx: allows me to switch the audio device via the command line
 # pgcli: postgres CLI
-brew install pgcli bat
+brew install pgcli bat tree
 
 # TODO replace eversion number wih something more long term
 echo "installing node (via NVM)"
