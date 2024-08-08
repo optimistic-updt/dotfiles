@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 
-# ~/.macos — https://mths.be/macos <== OG file
+# OG file ==> ~/.macos — https://mths.be/macos
 # Modified by Kevin
-# Run without downloading:
+
+# Run without downloading (from your prefered terminal(i.e. donwload iterm2 first)):
 # curl https://raw.githubusercontent.com/optimistic-updt/dotfiles/HEAD/.macos | bash
 
 # Close any open System Preferences panes, to prevent them from overriding
