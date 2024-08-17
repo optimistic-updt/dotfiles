@@ -63,7 +63,10 @@ echo "installing apps with brew --cask"
 brew install --cask rectangle google-chrome firefox brave-browser \
 visual-studio-code vlc discord zoom spotify dropbox slack docker \
 qlcolorcode qlmarkdown qlstephen quicklook-json webpquicklook \
-notion messenger asana google-drive
+notion messenger google-drive
+
+echo "installing brew cask apps for Tapestry"
+brew install asana 1password
 
 echo "oh-my-zsh"
 sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
