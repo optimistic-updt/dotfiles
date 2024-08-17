@@ -60,7 +60,7 @@ echo "installing a few global npm packages"
 npm install --global serve fkill-cli nx@latest
 
 echo "installing apps with brew --cask"
-brew install --cask spectacle google-chrome firefox brave-browser \
+brew install --cask rectangle google-chrome firefox brave-browser \
 visual-studio-code vlc discord zoom spotify dropbox slack docker \
 qlcolorcode qlmarkdown qlstephen quicklook-json webpquicklook \
 notion messenger asana google-drive
