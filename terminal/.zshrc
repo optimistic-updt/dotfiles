@@ -88,6 +88,13 @@ alias gmm="git merge master"
 killport() {
   kill $(lsof -t -i:$1)
 }
+
+# Start a ngrok tunnel on a given port
+rok() {
+  ngrok http $1
+}
+
+
 # tapestry related
 alias tap="cd ~/code/tapestry"
 export NVM_DIR="$HOME/.nvm"
