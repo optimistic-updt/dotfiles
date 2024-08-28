@@ -39,7 +39,7 @@ echo "brew installing stuff"
 # delta: A fantastic diff tool
 # switchaudio-osx: allows me to switch the audio device via the command line
 # pgcli: postgres CLI
-brew install pgcli bat tree
+brew install pgcli bat tree ngrok/ngrok/ngrok
 
 # TODO replace eversion number wih something more long term
 echo "installing node (via NVM)"
@@ -65,8 +65,10 @@ visual-studio-code vlc discord zoom spotify dropbox slack docker \
 qlcolorcode qlmarkdown qlstephen quicklook-json webpquicklook \
 notion messenger google-drive
 
-echo "installing brew cask apps for Tapestry"
+# TAPESTRY STUFF
+echo "installing Tapestry related stuff"
 brew install asana 1password
+npm install --global nx@latest yarn
 
 echo "oh-my-zsh"
 sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
@@ -762,6 +764,8 @@ echo "Done. Note that some of these changes require a logout/restart to take eff
 
 
 printf "TODO:\n\
+run 'pbcopy < ~/.ssh/id_ed25519.pub' and paste that into GitHub \n\
+run 'ngrok config add-authtoken YOUR_AUTH_TOKE' \n \
 iTerm2 -> set "kevin-main" as default profile \n\
 Turn on "setting Sync" in VSCode \n
 login to literally everything \n\
