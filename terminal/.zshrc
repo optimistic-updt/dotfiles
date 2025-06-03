@@ -82,8 +82,9 @@ alias python=python3
 alias t="tree -CI node_modules"
 alias cy="code . && yarn start"
 alias cnpm="code . && npm start"
-alias gswmp="gsw master && git pull"
-alias gmm="git merge master"
+alias gswmp="gsw main && git pull"
+alias gmm="git merge main"
+alias pm="pnpm"
 # Provide a port number to kill
 killport() {
   kill $(lsof -t -i:$1)
@@ -91,7 +92,7 @@ killport() {
 
 # Start a ngrok tunnel on a given port
 rok() {
-  ngrok http $1
+  ngrok http $1 --domain kev-tunnel.ngrok.dev
 }
 
 
@@ -111,3 +112,11 @@ export NVM_DIR="$HOME/.nvm"
 # AGNOSTER_DIR_FG:=black
 # AGNOSTER_DIR_BG:=magenta
 prompt_context() {}
+
+# pnpm
+export PNPM_HOME="/Users/kevin/Library/pnpm"
+case ":$PATH:" in
+  *":$PNPM_HOME:"*) ;;
+  *) export PATH="$PNPM_HOME:$PATH" ;;
+esac
+# pnpm end
