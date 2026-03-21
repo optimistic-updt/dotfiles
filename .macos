@@ -45,8 +45,10 @@ brew install pgcli bat tree ngrok/ngrok/ngrok llm
 
 echo "installing apps with brew --cask"
 brew install --cask google-chrome firefox brave-browser \
-raycast visual-studio-code notion google-drive docker \
-messenger discord slack claude \
+raycast notion google-drive \
+visual-studio-code dbeaver-community docker \
+messenger discord slack \
+claude \ 
 spotify \
 
 # TAPESTRY STUFF
