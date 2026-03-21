@@ -29,6 +29,7 @@ ZSH_THEME="agnoster"
 # DISABLE_AUTO_TITLE="true"
 # Uncomment the following line to enable command auto-correction.
 ENABLE_CORRECTION="true"
+# ignores the auto correct on the below commands
 # Uncomment the following line to display red dots whilst waiting for completion.
 # You can also set it to another string to have that shown instead of the default red dots.
 # e.g. COMPLETION_WAITING_DOTS="%F{yellow}waiting...%f"
@@ -78,13 +79,19 @@ export LANG=en_US.UTF-8
 #
 alias c="clear"
 alias ..="cd .."
-alias python=python3
+# alias python=python3  # handled by pyenv
 alias t="tree -CI node_modules"
-alias cy="code . && yarn start"
-alias cnpm="code . && npm start"
+alias pm="pnpm"
+
+# git
 alias gswmp="gsw main && git pull"
 alias gmm="git merge main"
-alias pm="pnpm"
+alias gmm="git merge develop"
+
+# projects
+alias tt="cd ~/code/personal/tiny-tripper"
+alias galgo="cd /Users/kevin/code/personal/kata-machine"
+
 # Provide a port number to kill
 killport() {
   kill $(lsof -t -i:$1)
@@ -97,7 +104,10 @@ rok() {
 
 
 # tapestry related
-alias tap="cd ~/code/tapestry"
+alias fe="cd ~/code/work/frontend"
+alias hank="cd ~/code/work/hank"
+
+# nvm
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
@@ -120,3 +130,9 @@ case ":$PATH:" in
   *) export PATH="$PNPM_HOME:$PATH" ;;
 esac
 # pnpm end
+export PATH=$PATH:~/.local/bin
+
+# pyenv
+export PYENV_ROOT="$HOME/.pyenv"
+[[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
+eval "$(pyenv init -)"

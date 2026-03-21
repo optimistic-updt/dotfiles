@@ -40,16 +40,14 @@ echo "brew installing stuff"
 # tree: really handy for listing out directories in text
 # bat: A cat(1) clone with syntax highlighting and Git integration.
 # delta: A fantastic diff tool
-# switchaudio-osx: allows me to switch the audio device via the command line
 # pgcli: postgres CLI
 brew install pgcli bat tree ngrok/ngrok/ngrok llm
 
 echo "installing apps with brew --cask"
 brew install --cask google-chrome firefox brave-browser \
 raycast visual-studio-code notion google-drive docker \
-messenger discord slack \
+messenger discord slack claude \
 spotify \
-# qlcolorcode qlmarkdown qlstephen quicklook-json webpquicklook \
 
 # TAPESTRY STUFF
 echo "installing Tapestry related stuff"
