@@ -48,7 +48,7 @@ brew install --cask google-chrome firefox brave-browser \
 raycast notion google-drive \
 visual-studio-code dbeaver-community docker \
 messenger discord slack \
-claude \ 
+claude wispr-flow cleanshot \
 spotify \
 
 # TAPESTRY STUFF
