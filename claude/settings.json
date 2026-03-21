@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "Bash(git rev-parse HEAD && git branch --show-current && basename $(git rev-parse --show-toplevel))"
+    ]
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "/Users/kevin/.claude/statusline-command.sh"
+  },
+  "enabledPlugins": {
+    "trace-claude-code@braintrust-claude-plugin": true
+  },
+  "alwaysThinkingEnabled": true,
+  "feedbackSurveyState": {
+    "lastShownTime": 1754099816135
+  },
+  "effortLevel": "high"
+}

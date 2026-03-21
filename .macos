@@ -41,7 +41,7 @@ echo "brew installing stuff"
 # bat: A cat(1) clone with syntax highlighting and Git integration.
 # delta: A fantastic diff tool
 # pgcli: postgres CLI
-brew install pgcli bat tree ngrok/ngrok/ngrok llm
+brew install pgcli bat tree ngrok/ngrok/ngrok llm neovim ripgrep fd
 
 echo "installing apps with brew --cask"
 brew install --cask google-chrome firefox brave-browser \
@@ -54,6 +54,28 @@ spotify \
 # TAPESTRY STUFF
 echo "installing Tapestry related stuff"
 brew install asana 1password
+
+echo "cloning Tapestry repositories"
+mkdir -p "${HOME}/Code/work/frontend"
+mkdir -p "${HOME}/Code/work/hank"
+
+# Clone repos
+git clone git@github.com:SOURCEDIGITAL/tapestry.git "${HOME}/Code/work/frontend/tapestry"
+git clone git@github.com:SOURCEDIGITAL/tapestry-hank-ai.git "${HOME}/Code/work/hank/tapestry-hank-ai"
+git clone git@github.com:SOURCEDIGITAL/agent-marketplace.git "${HOME}/Code/work/agent-marketplace"
+git clone git@github.com:SOURCEDIGITAL/tapestry-liquibase.git "${HOME}/Code/work/tapestry-liquibase"
+
+# Set up frontend worktrees
+echo "setting up frontend worktrees"
+git -C "${HOME}/Code/work/frontend/tapestry" worktree add ../feature
+git -C "${HOME}/Code/work/frontend/tapestry" worktree add ../bug
+git -C "${HOME}/Code/work/frontend/tapestry" worktree add ../refactor
+
+# Set up hank worktrees
+echo "setting up hank worktrees"
+git -C "${HOME}/Code/work/hank/tapestry-hank-ai" worktree add ../feature
+git -C "${HOME}/Code/work/hank/tapestry-hank-ai" worktree add ../bug
+git -C "${HOME}/Code/work/hank/tapestry-hank-ai" worktree add ../refactor
 
 ###############################################################################
 # Node + package manager installs                                             #
@@ -100,6 +122,21 @@ ln -s "${HOME}/dotfiles/terminal/agnoster.zsh-theme" "${HOME}/.oh-my-zsh/custom/
 ln -s "${HOME}/dotfiles/terminal/kevin-iterm-profiles" "${HOME}/Library/Application Support/iTerm2/DynamicProfiles"
 ln -s "${HOME}/dotfiles/.gitignore_global" "${HOME}/.gitignore_global"
 ln -s "${HOME}/dotfiles/.gitconfig" "${HOME}/.gitconfig"
+
+# Claude Code configuration
+mkdir -p "${HOME}/.claude"
+ln -sf "${HOME}/dotfiles/claude/CLAUDE.md" "${HOME}/.claude/CLAUDE.md"
+ln -sf "${HOME}/dotfiles/claude/settings.json" "${HOME}/.claude/settings.json"
+ln -sf "${HOME}/dotfiles/claude/statusline-command.sh" "${HOME}/.claude/statusline-command.sh"
+
+# NeoVim configuration (kickstart.nvim fork)
+echo "installing NeoVim configuration"
+mkdir -p "${HOME}/.config"
+if [ ! -d "${HOME}/.config/nvim" ]; then
+  git clone https://github.com/optimistic-updt/kickstart.nvim.git "${HOME}/.config/nvim"
+else
+  echo "NeoVim config already exists at ~/.config/nvim, skipping clone"
+fi
 
 echo "Installing powerline fonts"
 git clone https://github.com/powerline/fonts.git --depth=1
@@ -782,6 +819,8 @@ run '<OPENAI_API_KEY> llm keys set openai' \n \
 iTerm2 -> set "kevin-main" as default profile \n\
 Turn on "setting Sync" in VSCode \n
 login to literally everything \n\
+Open nvim to let lazy.nvim auto-install plugins (first launch) \n\
+(Optional) Install a Nerd Font for NeoVim icons \n\
 "
 
 # ###############################################################################
