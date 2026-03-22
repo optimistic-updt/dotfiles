@@ -53,6 +53,7 @@ spotify \
 
 # TAPESTRY STUFF
 echo "installing Tapestry related stuff"
+brew install --cask figma
 brew install asana 1password
 
 echo "cloning Tapestry repositories"
