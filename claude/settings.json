@@ -10,11 +10,18 @@
     "command": "/Users/kevin/.claude/statusline-command.sh"
   },
   "enabledPlugins": {
-    "trace-claude-code@braintrust-claude-plugin": true
+    "trace-claude-code@braintrust-claude-plugin": true,
+    "pyright-lsp@claude-plugins-official": true
   },
   "alwaysThinkingEnabled": true,
+  "effortLevel": "xhigh",
+  "tui": "fullscreen",
+  "skipDangerousModePermissionPrompt": true,
+  "theme": "dark-ansi",
+  "agentPushNotifEnabled": true,
+  "skipAutoPermissionPrompt": true,
   "feedbackSurveyState": {
     "lastShownTime": 1754099816135
   },
-  "effortLevel": "high"
+  "model": "claude-fable-5[1m]"
 }
