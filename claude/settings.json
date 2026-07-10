@@ -5,6 +5,7 @@
       "Bash(git rev-parse HEAD && git branch --show-current && basename $(git rev-parse --show-toplevel))"
     ]
   },
+  "model": "claude-fable-5[1m]",
   "statusLine": {
     "type": "command",
     "command": "/Users/kevin/.claude/statusline-command.sh"
@@ -18,10 +19,10 @@
   "tui": "fullscreen",
   "skipDangerousModePermissionPrompt": true,
   "theme": "dark-ansi",
+  "editorMode": "vim",
   "agentPushNotifEnabled": true,
   "skipAutoPermissionPrompt": true,
   "feedbackSurveyState": {
     "lastShownTime": 1754099816135
-  },
-  "model": "claude-fable-5[1m]"
+  }
 }
