@@ -107,10 +107,6 @@ rok() {
 alias fe="cd ~/code/work/frontend"
 alias hank="cd ~/code/work/hank"
 
-# nvm
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 #
 # PROMPT
 # %n is username
@@ -136,3 +132,10 @@ export PATH=$PATH:~/.local/bin
 export PYENV_ROOT="$HOME/.pyenv"
 [[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
 eval "$(pyenv init -)"
+
+# mise — manages Node + Ruby versions (https://mise.jdx.dev)
+# Reads .nvmrc / .ruby-version / .tool-versions / mise.toml files per-project
+# and switches versions automatically when you cd around.
+# NOTE: keep this line LAST (after pyenv and any PATH tweaks) so mise-managed
+# tools (node, ruby, gem, npm...) win PATH ordering.
+eval "$(mise activate zsh)"
