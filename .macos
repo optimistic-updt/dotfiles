@@ -157,6 +157,15 @@ cd fonts
 cd ..
 rm -rf fonts
 
+echo "Installing SpaceMono Nerd Font (terminal font)"
+# Nerd Fonts = regular fonts patched with thousands of extra glyphs (file-type
+# icons, powerline symbols, ...). The NeoVim config relies on these glyphs for
+# icons (vim.g.have_nerd_font = true → oil.nvim, Telescope, which-key icons),
+# and the kevin-main iTerm2 dynamic profile selects this font for the terminal
+# ("Normal Font" : "SpaceMonoNFM 14" in terminal/kevin-iterm-profiles), so
+# nothing needs to be set manually in iTerm2 for it to take effect.
+brew install --cask font-space-mono-nerd-font
+
 # # # # # #
 echo "making system modifications:"
 
@@ -832,7 +841,6 @@ iTerm2 -> set "kevin-main" as default profile \n\
 Turn on "setting Sync" in VSCode \n
 login to literally everything \n\
 Open nvim to let lazy.nvim auto-install plugins (first launch) \n\
-(Optional) Install a Nerd Font for NeoVim icons \n\
 "
 
 # ###############################################################################

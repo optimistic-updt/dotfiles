@@ -4,7 +4,8 @@
       "Use Separate Colors for Light and Dark Mode" : false,
       "Name" : "kevin-main",
       "Rewritable" : true,
-      "Guid" : "1kj2h31h13"
+      "Guid" : "1kj2h31h13",
+      "Normal Font" : "SpaceMonoNFM 14"
     }
   ]
 }
