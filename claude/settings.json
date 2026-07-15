@@ -6,13 +6,27 @@
     ]
   },
   "model": "claude-fable-5[1m]",
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash '/Users/kevin/.claude/hooks/herdr-agent-state.sh' session",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  },
   "statusLine": {
     "type": "command",
     "command": "/Users/kevin/.claude/statusline-command.sh"
   },
   "enabledPlugins": {
-    "trace-claude-code@braintrust-claude-plugin": true,
-    "pyright-lsp@claude-plugins-official": true
+    "pyright-lsp@claude-plugins-official": true,
+    "trace-claude-code@braintrust-claude-plugin": true
   },
   "alwaysThinkingEnabled": true,
   "effortLevel": "xhigh",
