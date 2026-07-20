@@ -49,8 +49,9 @@ echo "brew installing stuff"
 # herdr: agent multiplexer that lives in the terminal — https://herdr.dev
 # hunk: review-first terminal diff viewer for agent-authored changes —
 #   https://hunk.dev
+# pnpm: the package manager (see the Node section below)
 brew install pgcli bat tree llm neovim ripgrep fd \
-  mise openssl@3 libyaml gmp readline tree-sitter-cli herdr hunk
+  mise openssl@3 libyaml gmp readline tree-sitter-cli herdr hunk pnpm
 
 echo "installing apps with brew --cask"
 brew install --cask google-chrome firefox brave-browser \
@@ -86,17 +87,22 @@ mise use -g ruby@latest
 # created when tools install) and BEFORE any node/npm/ruby/gem call below.
 eval "$(mise activate bash --shims)"
 
-# install PNPM
-curl -fsSL https://get.pnpm.io/install.sh | bash
+# pnpm comes from brew above (NOT get.pnpm.io — that installer appends its own
+# PATH block to ~/.zshrc, which we replace with a symlink further down anyway).
+# PNPM_HOME is where `pnpm add --global` drops its binaries. It's exported in
+# .zshrc for interactive shells, but this script is non-interactive, so set it
+# here too — without it pnpm refuses to install globals
+# (ERR_PNPM_NO_GLOBAL_BIN_DIR).
+export PNPM_HOME="${HOME}/Library/pnpm"
+export PATH="$PNPM_HOME:$PATH"
 
 echo "node --version: $(node --version)"
-echo "npm --version: $(npm --version)"
 echo "pnpm --version: $(pnpm --version)"
 echo "ruby --version: $(ruby --version)"
 
-echo "installing a few global npm packages"
+echo "installing a few global pnpm packages"
 # @openai/codex: Codex CLI (the herdr codex integration below hooks into it)
-npm install --global serve fkill-cli @openai/codex
+pnpm add --global serve fkill-cli @openai/codex
 
 # Ruby LSP (Shopify) for Neovim — installed into the mise global Ruby.
 # Deliberately NOT installed via Mason: Shopify warns Mason-managed ruby-lsp
@@ -110,6 +116,11 @@ gem install ruby-lsp
 ###############################################################################
 echo "installing python (via uv)"
 curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# The uv installer drops binaries in ~/.local/bin and only wires that onto PATH
+# for INTERACTIVE shells (via a shell rc edit). This script is non-interactive,
+# so every `uv` call below would be "command not found" without this.
+export PATH="${HOME}/.local/bin:$PATH"
 
 # installs Python
 uv python install
@@ -126,18 +137,58 @@ sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/too
 echo "Generating a new SSH key for GitHub"
 ssh-keygen -t ed25519 -C "kev4tech@gmail.com" -f ~/.ssh/id_ed25519
 eval "$(ssh-agent -s)"
-touch ~/.ssh/config
-echo "Host *\n AddKeysToAgent yes\n UseKeychain yes\n IdentityFile ~/.ssh/id_ed25519" | tee ~/.ssh/config
+mkdir -p ~/.ssh
+# Heredoc, not `echo "...\n..."` — this script runs under bash, whose echo does
+# NOT expand \n without -e, so the old version wrote ~/.ssh/config as a single
+# line with literal backslash-n and none of these options took effect.
+# Appended (not `>` / `| tee`) so any other hosts in the file survive, and
+# guarded so re-runs don't stack duplicate blocks.
+if ! grep -q "IdentityFile ~/.ssh/id_ed25519" ~/.ssh/config 2>/dev/null; then
+  cat >> ~/.ssh/config <<'EOF'
+
+# Github stuff
+Host *
+  AddKeysToAgent yes
+  UseKeychain yes
+  IdentityFile ~/.ssh/id_ed25519
+EOF
+fi
+chmod 600 ~/.ssh/config
 ssh-add -K ~/.ssh/id_ed25519
 echo "run 'pbcopy < ~/.ssh/id_ed25519.pub' and paste that into GitHub"
 
+# Wait here: the clone below is over SSH (git@github.com) and CANNOT succeed
+# until the public key above is registered on GitHub.
+# Read from /dev/tty, NOT stdin — under `curl … | bash` stdin IS this script,
+# so a plain `read` would consume the next line of the script as its answer
+# and silently skip it. The guard lets the script still run where no terminal
+# is attached (CI, cron) instead of hard-failing.
+# (2>/dev/null comes BEFORE </dev/tty: redirections apply left to right, so
+# the other order lets the failed-open message leak to the terminal.)
+if : 2>/dev/null </dev/tty; then
+  printf "\nPress RETURN once the key is on GitHub… "
+  read -r _ </dev/tty
+  echo
+else
+  echo "No terminal attached — continuing without waiting."
+fi
+
 echo "cloning dotfiles"
 git clone git@github.com:optimistic-updt/dotfiles.git "${HOME}/dotfiles"
-ln -s "${HOME}/dotfiles/terminal/.zshrc" "${HOME}/.zshrc"
-ln -s "${HOME}/dotfiles/terminal/agnoster.zsh-theme" "${HOME}/.oh-my-zsh/custom/themes"
-ln -s "${HOME}/dotfiles/terminal/kevin-iterm-profiles" "${HOME}/Library/Application Support/iTerm2/DynamicProfiles"
-ln -s "${HOME}/dotfiles/.gitignore_global" "${HOME}/.gitignore_global"
-ln -s "${HOME}/dotfiles/.gitconfig" "${HOME}/.gitconfig"
+# -sf (not -s) on all of these: the oh-my-zsh installer above writes its own
+# ~/.zshrc from a template, so a plain `ln -s` here fails with "File exists"
+# and silently leaves you on oh-my-zsh's default rc instead of this repo's —
+# which means no theme, no aliases, and no PATH exports (pnpm, ~/.local/bin).
+# -f removes the existing file first, which also makes re-runs idempotent.
+ln -sf "${HOME}/dotfiles/terminal/.zshrc" "${HOME}/.zshrc"
+ln -sf "${HOME}/dotfiles/terminal/agnoster.zsh-theme" "${HOME}/.oh-my-zsh/custom/themes"
+# iTerm2 only creates DynamicProfiles/ on first launch; without this mkdir the
+# link below fails with "No such file or directory" (a missing-parent error,
+# which -f does NOT cover) on a machine where iTerm2 hasn't run yet.
+mkdir -p "${HOME}/Library/Application Support/iTerm2/DynamicProfiles"
+ln -sf "${HOME}/dotfiles/terminal/kevin-iterm-profiles" "${HOME}/Library/Application Support/iTerm2/DynamicProfiles"
+ln -sf "${HOME}/dotfiles/.gitignore_global" "${HOME}/.gitignore_global"
+ln -sf "${HOME}/dotfiles/.gitconfig" "${HOME}/.gitconfig"
 
 # Claude Code configuration
 mkdir -p "${HOME}/.claude"
