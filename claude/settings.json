@@ -13,7 +13,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash '/Users/kevin/.claude/hooks/herdr-agent-state.sh' session",
+            "command": "bash '/Users/kev/.claude/hooks/herdr-agent-state.sh' session",
             "timeout": 10
           }
         ]
@@ -22,7 +22,7 @@
   },
   "statusLine": {
     "type": "command",
-    "command": "/Users/kevin/.claude/statusline-command.sh"
+    "command": "/Users/kev/.claude/statusline-command.sh"
   },
   "enabledPlugins": {
     "pyright-lsp@claude-plugins-official": true,
