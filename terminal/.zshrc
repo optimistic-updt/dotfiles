@@ -90,7 +90,7 @@ alias gmm="git merge develop"
 
 # projects
 alias tt="cd ~/code/personal/tiny-tripper"
-alias galgo="cd /Users/kev/code/personal/kata-machine"
+alias galgo="cd ~/code/personal/kata-machine"
 
 # Provide a port number to kill
 killport() {
@@ -120,7 +120,7 @@ alias hank="cd ~/code/work/hank"
 prompt_context() {}
 
 # pnpm
-export PNPM_HOME="/Users/kev/Library/pnpm"
+export PNPM_HOME="$HOME/Library/pnpm"
 case ":$PATH:" in
   *":$PNPM_HOME:"*) ;;
   *) export PATH="$PNPM_HOME:$PATH" ;;

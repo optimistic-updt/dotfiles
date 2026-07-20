@@ -33,7 +33,7 @@ echo "installing homebrew"
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 
 # Homebrew will tell you to run these two commands
-(echo; echo 'eval "$(/usr/local/bin/brew shellenv)"') >> /Users/kev/.zprofile
+(echo; echo 'eval "$(/usr/local/bin/brew shellenv)"') >> "$HOME/.zprofile"
 eval "$(/usr/local/bin/brew shellenv)"
 
 echo "brew installing stuff"
