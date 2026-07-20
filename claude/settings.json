@@ -5,7 +5,7 @@
       "Bash(git rev-parse HEAD && git branch --show-current && basename $(git rev-parse --show-toplevel))"
     ]
   },
-  "model": "claude-fable-5[1m]",
+  "model": "opus[1m]",
   "hooks": {
     "SessionStart": [
       {
