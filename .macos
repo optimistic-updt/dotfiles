@@ -46,8 +46,9 @@ echo "brew installing stuff"
 #   source on macOS (Ruby installs are source builds, unlike Node's binaries)
 # tree-sitter-cli: required by nvim-treesitter (main branch) to compile
 #   parsers — without it Neovim syntax highlighting silently fails to install
-brew install pgcli bat tree ngrok/ngrok/ngrok llm neovim ripgrep fd \
-  mise openssl@3 libyaml gmp readline tree-sitter-cli
+# herdr: agent multiplexer that lives in the terminal — https://herdr.dev
+brew install pgcli bat tree llm neovim ripgrep fd \
+  mise openssl@3 libyaml gmp readline tree-sitter-cli herdr
 
 echo "installing apps with brew --cask"
 brew install --cask google-chrome firefox brave-browser \
@@ -92,7 +93,8 @@ echo "pnpm --version: $(pnpm --version)"
 echo "ruby --version: $(ruby --version)"
 
 echo "installing a few global npm packages"
-npm install --global serve fkill-cli
+# @openai/codex: Codex CLI (the herdr codex integration below hooks into it)
+npm install --global serve fkill-cli @openai/codex
 
 # Ruby LSP (Shopify) for Neovim — installed into the mise global Ruby.
 # Deliberately NOT installed via Mason: Shopify warns Mason-managed ruby-lsp
@@ -140,6 +142,21 @@ mkdir -p "${HOME}/.claude"
 ln -sf "${HOME}/dotfiles/claude/CLAUDE.md" "${HOME}/.claude/CLAUDE.md"
 ln -sf "${HOME}/dotfiles/claude/settings.json" "${HOME}/.claude/settings.json"
 ln -sf "${HOME}/dotfiles/claude/statusline-command.sh" "${HOME}/.claude/statusline-command.sh"
+
+# herdr <-> agent integrations.
+# These GENERATE the herdr-agent-state.sh hook scripts each agent calls (for
+# Claude that's ~/.claude/hooks/herdr-agent-state.sh, which the SessionStart
+# hook in claude/settings.json points at). The scripts are managed by herdr
+# and overwritten on every integration update, so they are deliberately NOT
+# vendored into this repo — let herdr write them. Must run after the
+# settings.json symlink above, since the claude installer also edits it.
+# Check state any time with `herdr integration status`.
+# NOTE: cursor is set up here but Cursor itself is not installed by this
+# script — the hook sits dormant until you install Cursor.
+echo "installing herdr's agent integrations"
+herdr integration install claude
+herdr integration install codex
+herdr integration install cursor
 
 # NeoVim configuration (kickstart.nvim fork)
 echo "installing NeoVim configuration"
