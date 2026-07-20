@@ -47,13 +47,15 @@ echo "brew installing stuff"
 # tree-sitter-cli: required by nvim-treesitter (main branch) to compile
 #   parsers — without it Neovim syntax highlighting silently fails to install
 # herdr: agent multiplexer that lives in the terminal — https://herdr.dev
+# hunk: review-first terminal diff viewer for agent-authored changes —
+#   https://hunk.dev
 brew install pgcli bat tree llm neovim ripgrep fd \
-  mise openssl@3 libyaml gmp readline tree-sitter-cli herdr
+  mise openssl@3 libyaml gmp readline tree-sitter-cli herdr hunk
 
 echo "installing apps with brew --cask"
 brew install --cask google-chrome firefox brave-browser \
 raycast wispr-flow notion cleanshot google-drive \
-visual-studio-code datagrip docker \
+visual-studio-code cursor datagrip docker \
 discord slack \
 claude \
 spotify \
@@ -151,8 +153,6 @@ ln -sf "${HOME}/dotfiles/claude/statusline-command.sh" "${HOME}/.claude/statusli
 # vendored into this repo — let herdr write them. Must run after the
 # settings.json symlink above, since the claude installer also edits it.
 # Check state any time with `herdr integration status`.
-# NOTE: cursor is set up here but Cursor itself is not installed by this
-# script — the hook sits dormant until you install Cursor.
 echo "installing herdr's agent integrations"
 herdr integration install claude
 herdr integration install codex
@@ -852,7 +852,6 @@ echo "Done. Note that some of these changes require a logout/restart to take eff
 
 printf "TODO:\n\
 run 'pbcopy < ~/.ssh/id_ed25519.pub' and paste that into GitHub \n\
-run 'ngrok config add-authtoken YOUR_AUTH_TOKE' \n \
 run '<OPENAI_API_KEY> llm keys set openai' \n \
 iTerm2 -> set "kevin-main" as default profile \n\
 Turn on "setting Sync" in VSCode \n
