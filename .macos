@@ -33,8 +33,9 @@ echo "installing homebrew"
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 
 # Homebrew will tell you to run these two commands
-(echo; echo 'eval "$(/usr/local/bin/brew shellenv)"') >> "$HOME/.zprofile"
-eval "$(/usr/local/bin/brew shellenv)"
+# (Apple Silicon Macs — Homebrew lives in /opt/homebrew)
+(echo; echo 'eval "$(/opt/homebrew/bin/brew shellenv)"') >> "$HOME/.zprofile"
+eval "$(/opt/homebrew/bin/brew shellenv)"
 
 echo "brew installing stuff"
 # tree: really handy for listing out directories in text
@@ -50,8 +51,11 @@ echo "brew installing stuff"
 # hunk: review-first terminal diff viewer for agent-authored changes —
 #   https://hunk.dev
 # pnpm: the package manager (see the Node section below)
+# gh: GitHub CLI — https://cli.github.com
+#   NOTE: run `gh auth login` afterwards to authenticate (interactive, so not
+#   done by this script)
 brew install pgcli bat tree llm neovim ripgrep fd \
-  mise openssl@3 libyaml gmp readline tree-sitter-cli herdr hunk pnpm
+  mise openssl@3 libyaml gmp readline tree-sitter-cli herdr hunk pnpm gh
 
 echo "installing apps with brew --cask"
 brew install --cask google-chrome firefox brave-browser \
@@ -247,12 +251,6 @@ echo "making system modifications:"
 #sudo scutil --set LocalHostName "0x6D746873"
 #sudo defaults write /Library/Preferences/SystemConfiguration/com.apple.smb.server NetBIOSName -string "0x6D746873"
 
-# Set standby delay to 24 hours (default is 1 hour)
-# sudo pmset -a standbydelay 86400
-
-# Disable the sound effects on boot
-# sudo nvram SystemAudioVolume=" "
-
 # Disable transparency in the menu bar and elsewhere on Yosemite
 # defaults write com.apple.universalaccess reduceTransparency -bool true
 
@@ -345,20 +343,6 @@ defaults write NSGlobalDomain NSAutomaticSpellingCorrectionEnabled -bool false
 #rm -rf ~/Library/Application Support/Dock/desktoppicture.db
 #sudo rm -rf /System/Library/CoreServices/DefaultDesktop.jpg
 #sudo ln -s /path/to/your/image /System/Library/CoreServices/DefaultDesktop.jpg
-
-###############################################################################
-# SSD-specific tweaks                                                         #
-###############################################################################
-
-# Disable hibernation (speeds up entering sleep mode)
-# sudo pmset -a hibernatemode 0
-
-# Remove the sleep image file to save disk space
-# sudo rm /private/var/vm/sleepimage
-# Create a zero-byte file instead…
-# sudo touch /private/var/vm/sleepimage
-# …and make sure it can’t be rewritten
-# sudo chflags uchg /private/var/vm/sleepimage
 
 ###############################################################################
 # Trackpad, mouse, keyboard, Bluetooth accessories, and input                 #
