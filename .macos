@@ -3,8 +3,23 @@
 # OG file ==> ~/.macos — https://mths.be/macos
 # Modified by Kevin
 
-# Run without downloading (from your prefered terminal(i.e. donwload iterm2 first)):
-# curl https://raw.githubusercontent.com/optimistic-updt/dotfiles/HEAD/.macos | bash
+# Run without downloading (from your preferred terminal — download iTerm2 first):
+#
+#   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/optimistic-updt/dotfiles/HEAD/.macos)"
+#
+# NOT `curl … | bash`: piping makes stdin the script text itself, so every
+# interactive step below (ssh-keygen passphrase, gh auth login, llm key
+# prompt) would either swallow script lines or silently run degraded.
+# `bash -c "$(curl …)"` downloads first, then runs with stdin still your
+# terminal — the same pattern Homebrew's installer uses.
+
+# Refuse to run piped: this script is interactive by design (see above).
+# Set MACOS_ALLOW_NO_TTY=1 to bypass (CI / debugging).
+if [ ! -t 0 ] && [ -z "${MACOS_ALLOW_NO_TTY:-}" ]; then
+  echo "ERROR: stdin is not a terminal. Did you run 'curl … | bash'?" >&2
+  echo 'Run instead:  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/optimistic-updt/dotfiles/HEAD/.macos)"' >&2
+  exit 1
+fi
 
 # Close any open System Preferences panes, to prevent them from overriding
 # settings we’re about to change
@@ -30,11 +45,15 @@ mkdir -p "${HOME}/Code"
 ###############################################################################
 echo "installing homebrew"
 # install homebrew https://brew.sh
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+# NONINTERACTIVE=1: skip the installer's press-RETURN confirmation — sudo is
+# already cached above, so nothing else in it prompts either.
+NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 
 # Homebrew will tell you to run these two commands
 # (Apple Silicon Macs — Homebrew lives in /opt/homebrew)
-(echo; echo 'eval "$(/opt/homebrew/bin/brew shellenv)"') >> "$HOME/.zprofile"
+# Grep-guarded so re-runs don't stack duplicate lines in .zprofile.
+grep -q 'brew shellenv' "$HOME/.zprofile" 2>/dev/null \
+  || (echo; echo 'eval "$(/opt/homebrew/bin/brew shellenv)"') >> "$HOME/.zprofile"
 eval "$(/opt/homebrew/bin/brew shellenv)"
 
 echo "brew installing stuff"
@@ -52,8 +71,8 @@ echo "brew installing stuff"
 #   https://hunk.dev
 # pnpm: the package manager (see the Node section below)
 # gh: GitHub CLI — https://cli.github.com
-#   NOTE: run `gh auth login` afterwards to authenticate (interactive, so not
-#   done by this script)
+#   authenticated inline in the Terminal section below (the SSH-key upload
+#   and dotfiles clone depend on it)
 brew install pgcli bat tree llm neovim ripgrep fd \
   mise openssl@3 libyaml gmp readline tree-sitter-cli herdr hunk pnpm gh
 
@@ -132,16 +151,36 @@ uv python install
 echo "python3 --version: $(python3 --version)"
 echo "uv --version: $(uv --version)"
 
+# Set up the llm CLI's OpenAI key now rather than as a "remember later" step.
+# Skippable — you may not have the key on hand mid-bootstrap.
+printf "Set your OpenAI API key for llm now? [y/N] "
+read -r _ans
+case "$_ans" in
+  [yY]*) llm keys set openai ;; # prompts for the key on the terminal
+  *) echo "Skipped — run 'llm keys set openai' later." ;;
+esac
+
 ###############################################################################
 # Terminal install and setup                                                  #
 ###############################################################################
 echo "installing oh-my-zsh"
-sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+# --unattended is REQUIRED here: now that stdin is a real terminal, the
+# default installer would run chsh and then `exec zsh`, replacing this shell
+# and halting the rest of the script right here. (chsh is pointless anyway —
+# zsh is already the macOS default shell.) The "" fills $0 when passing
+# args through `sh -c`; the env vars are belt-and-suspenders.
+RUNZSH=no CHSH=no sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
 
 echo "Generating a new SSH key for GitHub"
-ssh-keygen -t ed25519 -C "kev4tech@gmail.com" -f ~/.ssh/id_ed25519
-eval "$(ssh-agent -s)"
 mkdir -p ~/.ssh
+# Guarded: on re-run ssh-keygen would prompt "Overwrite (y/n)?" — skip instead.
+# The passphrase prompt is deliberate (stdin is a real terminal now).
+if [ ! -f ~/.ssh/id_ed25519 ]; then
+  ssh-keygen -t ed25519 -C "kev4tech@gmail.com" -f ~/.ssh/id_ed25519
+else
+  echo "~/.ssh/id_ed25519 already exists — skipping keygen"
+fi
+eval "$(ssh-agent -s)"
 # Heredoc, not `echo "...\n..."` — this script runs under bash, whose echo does
 # NOT expand \n without -e, so the old version wrote ~/.ssh/config as a single
 # line with literal backslash-n and none of these options took effect.
@@ -158,27 +197,37 @@ Host *
 EOF
 fi
 chmod 600 ~/.ssh/config
-ssh-add -K ~/.ssh/id_ed25519
-echo "run 'pbcopy < ~/.ssh/id_ed25519.pub' and paste that into GitHub"
+# --apple-use-keychain replaces -K, deprecated since macOS 12
+ssh-add --apple-use-keychain ~/.ssh/id_ed25519
 
-# Wait here: the clone below is over SSH (git@github.com) and CANNOT succeed
-# until the public key above is registered on GitHub.
-# Read from /dev/tty, NOT stdin — under `curl … | bash` stdin IS this script,
-# so a plain `read` would consume the next line of the script as its answer
-# and silently skip it. The guard lets the script still run where no terminal
-# is attached (CI, cron) instead of hard-failing.
-# (2>/dev/null comes BEFORE </dev/tty: redirections apply left to right, so
-# the other order lets the failed-open message leak to the terminal.)
-if : 2>/dev/null </dev/tty; then
-  printf "\nPress RETURN once the key is on GitHub… "
-  read -r _ </dev/tty
-  echo
+# Authenticate gh and upload the key — replaces the old manual
+# "pbcopy → paste into github.com → press RETURN" flow.
+#   -s admin:public_key  gh's default token scopes canNOT write SSH keys;
+#                        without this, `gh ssh-key add` fails
+#   --git-protocol ssh   matches the git@github.com clone below
+#   --skip-ssh-key       stops login's own key-upload wizard so the explicit
+#                        `gh ssh-key add` below owns that step
+if ! gh auth status --hostname github.com >/dev/null 2>&1; then
+  gh auth login --hostname github.com --git-protocol ssh --web \
+    -s admin:public_key --skip-ssh-key
+fi
+if gh auth status --hostname github.com >/dev/null 2>&1; then
+  # re-runs get "key is already in use" from the API — not fatal
+  gh ssh-key add ~/.ssh/id_ed25519.pub --title "$(hostname)-$(date +%Y%m%d)" \
+    || echo "gh ssh-key add failed (already uploaded?) — continuing"
 else
-  echo "No terminal attached — continuing without waiting."
+  # Fallback: gh login failed or was aborted — manual flow. The clone below
+  # is over SSH (git@github.com) and CANNOT succeed until the key is on GitHub.
+  pbcopy < ~/.ssh/id_ed25519.pub
+  echo "gh auth didn't complete. Your public key is on the clipboard —"
+  echo "paste it at https://github.com/settings/ssh/new"
+  printf "Press RETURN once the key is on GitHub… "
+  read -r _
+  echo
 fi
 
 echo "cloning dotfiles"
-git clone git@github.com:optimistic-updt/dotfiles.git "${HOME}/dotfiles"
+[ -d "${HOME}/dotfiles" ] || git clone git@github.com:optimistic-updt/dotfiles.git "${HOME}/dotfiles"
 # -sf (not -s) on all of these: the oh-my-zsh installer above writes its own
 # ~/.zshrc from a template, so a plain `ln -s` here fails with "File exists"
 # and silently leaves you on oh-my-zsh's default rc instead of this repo's —
@@ -191,6 +240,11 @@ ln -sf "${HOME}/dotfiles/terminal/agnoster.zsh-theme" "${HOME}/.oh-my-zsh/custom
 # which -f does NOT cover) on a machine where iTerm2 hasn't run yet.
 mkdir -p "${HOME}/Library/Application Support/iTerm2/DynamicProfiles"
 ln -sf "${HOME}/dotfiles/terminal/kevin-iterm-profiles" "${HOME}/Library/Application Support/iTerm2/DynamicProfiles"
+# Make the "kevin-main" dynamic profile the default (GUID from that file).
+# Caveat: iTerm2 caches prefs in memory and rewrites its plist on quit, so if
+# you're running this FROM iTerm2 the setting can be clobbered when you quit —
+# re-run this one line afterwards if the profile didn't stick.
+defaults write com.googlecode.iterm2 "Default Bookmark Guid" -string "1kj2h31h13"
 ln -sf "${HOME}/dotfiles/.gitignore_global" "${HOME}/.gitignore_global"
 ln -sf "${HOME}/dotfiles/.gitconfig" "${HOME}/.gitconfig"
 
@@ -222,12 +276,19 @@ else
   echo "NeoVim config already exists at ~/.config/nvim, skipping clone"
 fi
 
+# First-launch plugin install, done here so opening nvim later "just works".
+# Network-heavy; the || keeps a flaky sync from looking like a script failure.
+echo "Installing NeoVim plugins headlessly (lazy.nvim first-run)"
+nvim --headless "+Lazy! sync" +qa \
+  || echo "lazy.nvim sync failed — open nvim once to finish plugin install"
+
 echo "Installing powerline fonts"
-git clone https://github.com/powerline/fonts.git --depth=1
-cd fonts
-./install.sh
-cd ..
-rm -rf fonts
+# Clone in a temp dir — under `bash -c` the cwd is wherever you ran the
+# command from, and this block shouldn't litter it.
+fonts_tmp="$(mktemp -d)"
+git clone https://github.com/powerline/fonts.git --depth=1 "${fonts_tmp}/fonts"
+"${fonts_tmp}/fonts/install.sh"
+rm -rf "${fonts_tmp}"
 
 echo "Installing SpaceMono Nerd Font (terminal font)"
 # Nerd Fonts = regular fonts patched with thousands of extra glyphs (file-type
@@ -885,14 +946,12 @@ done
 echo "Done. Note that some of these changes require a logout/restart to take effect."
 
 
-printf "TODO:\n\
-run 'pbcopy < ~/.ssh/id_ed25519.pub' and paste that into GitHub \n\
-run '<OPENAI_API_KEY> llm keys set openai' \n \
-iTerm2 -> set "kevin-main" as default profile \n\
-Turn on "setting Sync" in VSCode \n
-login to literally everything \n\
-Open nvim to let lazy.nvim auto-install plugins (first launch) \n\
-"
+cat <<'EOF'
+
+Remaining manual steps (the only ones that can't be scripted):
+  - VSCode: sign in and turn on Settings Sync
+  - Log into your apps (browsers, Slack, Discord, Notion, Spotify, ...)
+EOF
 
 # ###############################################################################
 # # TODO: things to look to do more
