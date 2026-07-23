@@ -52,6 +52,8 @@ echo "brew installing stuff"
 #   https://hunk.dev
 # pnpm: the package manager (see the Node section below)
 # gh: GitHub CLI — https://cli.github.com
+#   NOTE: run `gh auth login` afterwards to authenticate (interactive, so not
+#   done by this script)
 brew install pgcli bat tree llm neovim ripgrep fd \
   mise openssl@3 libyaml gmp readline tree-sitter-cli herdr hunk pnpm gh
 
