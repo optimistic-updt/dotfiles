@@ -6,7 +6,7 @@ export ZSH="$HOME/.oh-my-zsh"
 # load a random theme each time oh-my-zsh is loaded, in which case,
 # to know which specific one was loaded, run: echo $RANDOM_THEME
 # See https://github.com/ohmyzsh/ohmyzsh/wiki/Themes
-ZSH_THEME="agnoster"
+ZSH_THEME="dracula"
 # Set list of themes to pick from when loading at random
 # Setting this variable when ZSH_THEME=random will cause zsh to load
 # a theme from this variable instead of looking in $ZSH/themes/
@@ -79,14 +79,15 @@ export LANG=en_US.UTF-8
 #
 alias c="clear"
 alias ..="cd .."
-# alias python=python3  # handled by pyenv
 alias t="tree -CI node_modules"
 alias pm="pnpm"
+alias ls="ls -al"
+alias vi="nvim"
 
 # git
 alias gswmp="gsw main && git pull"
 alias gmm="git merge main"
-alias gmm="git merge develop"
+alias gmd="git merge develop"
 
 # projects
 alias tt="cd ~/code/personal/tiny-tripper"
@@ -101,11 +102,6 @@ killport() {
 rok() {
   ngrok http $1 --domain kev-tunnel.ngrok.dev
 }
-
-
-# tapestry related
-alias fe="cd ~/code/work/frontend"
-alias hank="cd ~/code/work/hank"
 
 #
 # PROMPT
@@ -127,11 +123,6 @@ case ":$PATH:" in
 esac
 # pnpm end
 export PATH=$PATH:~/.local/bin
-
-# pyenv
-export PYENV_ROOT="$HOME/.pyenv"
-[[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
-eval "$(pyenv init -)"
 
 # mise — manages Node + Ruby versions (https://mise.jdx.dev)
 # Reads .nvmrc / .ruby-version / .tool-versions / mise.toml files per-project

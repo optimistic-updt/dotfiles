@@ -1,0 +1,3 @@
+[submodule "terminal/dracula"]
+	path = terminal/dracula
+	url = https://github.com/dracula/zsh.git
