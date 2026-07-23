@@ -3,7 +3,7 @@
 # OG file ==> ~/.macos — https://mths.be/macos
 # Modified by Kevin
 
-# Run without downloading (from your prefered terminal(i.e. donwload iterm2 first)):
+# Run without downloading (from any terminal — this script installs Ghostty for you):
 # curl https://raw.githubusercontent.com/optimistic-updt/dotfiles/HEAD/.macos | bash
 
 # Close any open System Preferences panes, to prevent them from overriding
@@ -59,6 +59,7 @@ brew install pgcli bat tree llm neovim ripgrep fd \
 
 echo "installing apps with brew --cask"
 brew install --cask google-chrome firefox brave-browser \
+ghostty \
 raycast wispr-flow notion cleanshot google-drive \
 visual-studio-code cursor datagrip docker \
 discord slack \
@@ -186,11 +187,11 @@ git clone git@github.com:optimistic-updt/dotfiles.git "${HOME}/dotfiles"
 # -f removes the existing file first, which also makes re-runs idempotent.
 ln -sf "${HOME}/dotfiles/terminal/.zshrc" "${HOME}/.zshrc"
 ln -sf "${HOME}/dotfiles/terminal/agnoster.zsh-theme" "${HOME}/.oh-my-zsh/custom/themes"
-# iTerm2 only creates DynamicProfiles/ on first launch; without this mkdir the
-# link below fails with "No such file or directory" (a missing-parent error,
-# which -f does NOT cover) on a machine where iTerm2 hasn't run yet.
-mkdir -p "${HOME}/Library/Application Support/iTerm2/DynamicProfiles"
-ln -sf "${HOME}/dotfiles/terminal/kevin-iterm-profiles" "${HOME}/Library/Application Support/iTerm2/DynamicProfiles"
+# Ghostty reads its config from ~/.config/ghostty/config. mkdir the parent first
+# (missing-parent errors are NOT covered by -f) so the symlink lands on a machine
+# where Ghostty hasn't run yet.
+mkdir -p "${HOME}/.config/ghostty"
+ln -sf "${HOME}/dotfiles/terminal/ghostty-config" "${HOME}/.config/ghostty/config"
 ln -sf "${HOME}/dotfiles/.gitignore_global" "${HOME}/.gitignore_global"
 ln -sf "${HOME}/dotfiles/.gitconfig" "${HOME}/.gitconfig"
 
@@ -233,9 +234,9 @@ echo "Installing SpaceMono Nerd Font (terminal font)"
 # Nerd Fonts = regular fonts patched with thousands of extra glyphs (file-type
 # icons, powerline symbols, ...). The NeoVim config relies on these glyphs for
 # icons (vim.g.have_nerd_font = true → oil.nvim, Telescope, which-key icons),
-# and the kevin-main iTerm2 dynamic profile selects this font for the terminal
-# ("Normal Font" : "SpaceMonoNFM 14" in terminal/kevin-iterm-profiles), so
-# nothing needs to be set manually in iTerm2 for it to take effect.
+# and the Ghostty config selects this font for the terminal
+# ("font-family = SpaceMono Nerd Font Mono" in terminal/ghostty-config), so
+# nothing needs to be set manually in Ghostty for it to take effect.
 brew install --cask font-space-mono-nerd-font
 
 # # # # # #
@@ -754,7 +755,7 @@ sudo mdutil -i on / > /dev/null
 sudo mdutil -E / > /dev/null
 
 ###############################################################################
-# Terminal & iTerm 2                                                          #
+# Terminal & Ghostty                                                          #
 ###############################################################################
 
 # Only use UTF-8 in Terminal.app
@@ -766,9 +767,6 @@ defaults write com.apple.terminal SecureKeyboardEntry -bool true
 
 # Disable the annoying line marks
 defaults write com.apple.Terminal ShowLineMarks -int 0
-
-# Don’t display the annoying prompt when quitting iTerm
-# defaults write com.googlecode.iterm2 PromptOnQuit -bool false
 
 ###############################################################################
 # Time Machine                                                                #
@@ -888,7 +886,7 @@ echo "Done. Note that some of these changes require a logout/restart to take eff
 printf "TODO:\n\
 run 'pbcopy < ~/.ssh/id_ed25519.pub' and paste that into GitHub \n\
 run '<OPENAI_API_KEY> llm keys set openai' \n \
-iTerm2 -> set "kevin-main" as default profile \n\
+set Ghostty as the default terminal (macOS Settings, or Ghostty first-run prompt) \n\
 Turn on "setting Sync" in VSCode \n
 login to literally everything \n\
 Open nvim to let lazy.nvim auto-install plugins (first launch) \n\

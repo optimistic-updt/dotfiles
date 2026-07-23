@@ -1,0 +1,15 @@
+# Ghostty configuration
+# Symlinked to ~/.config/ghostty/config by .macos
+# Docs: https://ghostty.org/docs/config
+
+# SpaceMono Nerd Font Mono is installed by .macos
+# (brew install --cask font-space-mono-nerd-font). The Nerd Font glyphs are
+# what the NeoVim config and agnoster prompt rely on for icons/powerline.
+font-family = SpaceMono Nerd Font Mono
+font-size = 17
+
+# Give lines a bit more breathing room (20% taller cells)
+adjust-cell-height = 20%
+
+# Color scheme (one of Ghostty's built-in themes)
+theme = Dracula
