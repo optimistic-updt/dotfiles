@@ -54,8 +54,10 @@ echo "brew installing stuff"
 # gh: GitHub CLI — https://cli.github.com
 #   NOTE: run `gh auth login` afterwards to authenticate (interactive, so not
 #   done by this script)
+# w3m: text-mode browser used by the herdr termbrowser plugin (Ctrl+click a
+#   link in herdr -> opens in a w3m tab)
 brew install pgcli bat tree llm neovim ripgrep fd \
-  mise openssl@3 libyaml gmp readline tree-sitter-cli herdr hunk pnpm gh
+  mise openssl@3 libyaml gmp readline tree-sitter-cli herdr hunk pnpm gh w3m
 
 echo "installing apps with brew --cask"
 brew install --cask google-chrome firefox brave-browser \
@@ -94,12 +96,15 @@ eval "$(mise activate bash --shims)"
 
 # pnpm comes from brew above (NOT get.pnpm.io — that installer appends its own
 # PATH block to ~/.zshrc, which we replace with a symlink further down anyway).
-# PNPM_HOME is where `pnpm add --global` drops its binaries. It's exported in
-# .zshrc for interactive shells, but this script is non-interactive, so set it
-# here too — without it pnpm refuses to install globals
+# PNPM_HOME is where pnpm keeps its global installs. It's exported in .zshrc
+# for interactive shells, but this script is non-interactive, so set it here
+# too — without it pnpm refuses to install globals
 # (ERR_PNPM_NO_GLOBAL_BIN_DIR).
+# BOTH dirs go on PATH: pnpm ≤10 dropped global binaries in $PNPM_HOME itself,
+# pnpm 11+ puts them in $PNPM_HOME/bin — and pnpm 11 errors out of
+# `pnpm add --global` if its bin dir isn't already on PATH.
 export PNPM_HOME="${HOME}/Library/pnpm"
-export PATH="$PNPM_HOME:$PATH"
+export PATH="$PNPM_HOME/bin:$PNPM_HOME:$PATH"
 
 echo "node --version: $(node --version)"
 echo "pnpm --version: $(pnpm --version)"
@@ -107,7 +112,9 @@ echo "ruby --version: $(ruby --version)"
 
 echo "installing a few global pnpm packages"
 # @openai/codex: Codex CLI (the herdr codex integration below hooks into it)
-pnpm add --global serve fkill-cli @openai/codex
+# @playwright/cli: Playwright CLI for driving browsers from the terminal /
+#   coding agents — https://github.com/microsoft/playwright-cli
+pnpm add --global serve fkill-cli @openai/codex @playwright/cli
 
 # Ruby LSP (Shopify) for Neovim — installed into the mise global Ruby.
 # Deliberately NOT installed via Mason: Shopify warns Mason-managed ruby-lsp
@@ -187,11 +194,16 @@ git clone git@github.com:optimistic-updt/dotfiles.git "${HOME}/dotfiles"
 # -f removes the existing file first, which also makes re-runs idempotent.
 ln -sf "${HOME}/dotfiles/terminal/.zshrc" "${HOME}/.zshrc"
 ln -sf "${HOME}/dotfiles/terminal/agnoster.zsh-theme" "${HOME}/.oh-my-zsh/custom/themes"
-# Ghostty reads its config from ~/.config/ghostty/config. mkdir the parent first
-# (missing-parent errors are NOT covered by -f) so the symlink lands on a machine
-# where Ghostty hasn't run yet.
-mkdir -p "${HOME}/.config/ghostty"
-ln -sf "${HOME}/dotfiles/terminal/ghostty-config" "${HOME}/.config/ghostty/config"
+# App configs kept in the repo under .config/, mirroring ~/.config. Whole
+# directories are symlinked (-n stops ln from descending into an existing link
+# on re-runs), except herdr, where only config.toml is tracked because the rest
+# of ~/.config/herdr is runtime state (sockets, logs, session).
+mkdir -p "${HOME}/.config"
+for cfg in ghostty git mise fish; do
+  ln -sfn "${HOME}/dotfiles/.config/${cfg}" "${HOME}/.config/${cfg}"
+done
+mkdir -p "${HOME}/.config/herdr"
+ln -sf "${HOME}/dotfiles/.config/herdr/config.toml" "${HOME}/.config/herdr/config.toml"
 ln -sf "${HOME}/dotfiles/.gitignore_global" "${HOME}/.gitignore_global"
 ln -sf "${HOME}/dotfiles/.gitconfig" "${HOME}/.gitconfig"
 
@@ -214,6 +226,12 @@ herdr integration install claude
 herdr integration install codex
 herdr integration install cursor
 
+# herdr plugins, kept in the repo under .config/herdr/plugins/ and linked (not
+# installed) so edits are live. Linking is idempotent for an already-linked path.
+# termbrowser: Ctrl+click an http(s) URL in any pane -> new tab running w3m.
+echo "linking herdr plugins"
+herdr plugin link "${HOME}/dotfiles/.config/herdr/plugins/termbrowser"
+
 # NeoVim configuration (kickstart.nvim fork)
 echo "installing NeoVim configuration"
 mkdir -p "${HOME}/.config"
@@ -235,7 +253,7 @@ echo "Installing SpaceMono Nerd Font (terminal font)"
 # icons, powerline symbols, ...). The NeoVim config relies on these glyphs for
 # icons (vim.g.have_nerd_font = true → oil.nvim, Telescope, which-key icons),
 # and the Ghostty config selects this font for the terminal
-# ("font-family = SpaceMono Nerd Font Mono" in terminal/ghostty-config), so
+# ("font-family = SpaceMono Nerd Font Mono" in .config/ghostty/config.ghostty), so
 # nothing needs to be set manually in Ghostty for it to take effect.
 brew install --cask font-space-mono-nerd-font
 

@@ -1,0 +1,54 @@
+onboarding = false
+
+[keys]
+previous_agent = "prefix+ctrl+u"
+next_agent = "prefix+ctrl+d"
+settings = ""  # freed for the dev layout below
+open_worktree = "prefix+shift+o"  # unbound by default
+
+[[keys.command]]
+key = "prefix+d"
+type = "shell"
+command = "/Users/kev/dotfiles/.config/herdr/scripts/hunk-tab.sh"
+description = "hunk diff tab"
+
+[[keys.command]]
+key = "prefix+s"
+type = "shell"
+command = "/Users/kev/dotfiles/.config/herdr/scripts/dev-layout.sh"
+description = "dev layout here"
+
+[[keys.command]]
+key = "prefix+shift+s"
+type = "shell"
+command = "/Users/kev/dotfiles/.config/herdr/scripts/dev-layout-workspace.sh"
+description = "dev layout in new workspace"
+
+[[keys.command]]
+key = "prefix+a"
+type = "shell"
+command = "/Users/kev/dotfiles/.config/herdr/scripts/agent-layout.sh"
+description = "agent layout here"
+
+[[keys.command]]
+key = "prefix+shift+a"
+type = "shell"
+command = "/Users/kev/dotfiles/.config/herdr/scripts/agent-layout-workspace.sh"
+description = "agent layout in new workspace"
+
+[ui]
+agent_panel_sort = "priority"
+
+[ui.sidebar.agents]
+row_gap = 0
+rows = [
+  ["state_icon", "workspace", "tab"],
+  ["agent"],
+]
+
+[ui.sidebar.spaces]
+row_gap = 1
+rows = [
+  ["state_icon", "workspace"],
+  ["branch", "git_status"],
+]

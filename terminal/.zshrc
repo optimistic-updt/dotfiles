@@ -85,13 +85,14 @@ alias ls="ls -al"
 alias vi="nvim"
 
 # git
-alias gswmp="gsw main && git pull"
-alias gmm="git merge main"
+alias gswmp="gsw master && git pull"
+alias gmm="git merge master"
 alias gmd="git merge develop"
 
 # projects
 alias tt="cd ~/code/personal/tiny-tripper"
 alias galgo="cd ~/code/personal/kata-machine"
+alias mo="cd ~/code/movement"
 
 # Provide a port number to kill
 killport() {
@@ -116,10 +117,12 @@ rok() {
 prompt_context() {}
 
 # pnpm
+# Both dirs on PATH: pnpm ≤10 put global binaries in $PNPM_HOME itself,
+# pnpm 11+ puts them in $PNPM_HOME/bin (playwright-cli etc. live there).
 export PNPM_HOME="$HOME/Library/pnpm"
 case ":$PATH:" in
-  *":$PNPM_HOME:"*) ;;
-  *) export PATH="$PNPM_HOME:$PATH" ;;
+  *":$PNPM_HOME/bin:"*) ;;
+  *) export PATH="$PNPM_HOME/bin:$PNPM_HOME:$PATH" ;;
 esac
 # pnpm end
 export PATH=$PATH:~/.local/bin

@@ -1,0 +1,22 @@
+# Herdr plugin: open Ctrl+clicked http(s) links in a new Herdr tab running w3m.
+# Cmd+click is untouched and still goes through Ghostty to the system browser.
+# Linked (not installed) from dotfiles: `herdr plugin link <this dir>` (see .macos).
+id = "kev.termbrowser"
+name = "Terminal browser"
+version = "0.1.0"
+min_herdr_version = "0.7.0"
+description = "Ctrl+click a link to open it in a w3m tab"
+platforms = ["macos", "linux"]
+
+[[actions]]
+id = "open"
+title = "Open link in w3m tab"
+description = "Open the clicked URL in a new tab of the current workspace running w3m"
+contexts = ["global", "pane", "selection"]
+command = ["sh", "open-url.sh"]
+
+[[link_handlers]]
+id = "http"
+title = "Open in terminal browser tab"
+pattern = "^https?://"
+action = "open"

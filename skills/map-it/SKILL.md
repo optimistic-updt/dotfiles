@@ -1,79 +1,145 @@
 ---
 name: map-it
-description: Provide guidance about creating a primitive map
+description: Generate and maintain the system recap - a visual summary of which system primitives a change touches, how risky it is, and what changed. Use when planning a non-trivial change (plan mode), when creating or updating a pull request (recap mode), or when the user asks for a visual recap, visual plan, system review, or PR recap.
 disable-model-invocation: true
 ---
 
-You are an expert system architect, draw a high-level map of the primitives that this _subject_ touches
+# System recap (visual plan / visual recap)
 
-Point out what this _subject_ would affect and how they relate to each other.
+Produce a high-altitude, visual review aid directly in the PR description. A future viewer app can ingest the
+same marker-delimited block via the GitHub API, so follow the format exactly.
 
-The _subject_ could be a change/pr/spec/conversations. Generally the context within which you are invoked
+The recap is informational and non-blocking. It supplements the PR description
+and normal code review; it never replaces reading the diff.
 
-## What a primitive is
+## Two modes, one format
 
-This is the whole of your judgement, and getting it wrong makes the map
-worthless. A primitive is a **concept the system is built out of**, not a
-file the PR happened to change.
+- **Plan mode** (before/while implementing): describe the intended change
+  against the current system. If no PR exists yet, put the block in the plan
+  document or message; move it into the PR description once the PR exists.
+- **Recap mode** (PR creation and every meaningful update): describe what the
+  diff actually does. Replaces a plan-mode block if one exists.
 
-The test: could somebody say "the X" in a planning meeting and be understood
-without anybody opening the code? Then X is a primitive. A model or table, a
-background job, a service object, an API surface, a state machine, a queue, an
-external integration, a screen or flow the user moves through — those are
-primitives. `app/models/concerns/trackable.rb` is a file. `UserSerializer#as_json`
-is a method. Neither is a primitive unless it *is* the concept.
+## Source-of-truth rules (non-negotiable)
 
-So: a PR that edits nine files across one job and its two callers is a map of
-three primitives, not nine. Name each one the way the team names it.
+1. **Recap mode reads the diff, not memory.** Generate the recap from
+   `git diff <base>...HEAD` (plus `git diff --stat`) against the PR base branch.
+   Session context may explain intent, but every claim about what changed must
+   be checkable against the diff.
+2. **The map stays current.** If the PR adds, removes, or materially reshapes a
+   primitive, update the diagrams
 
-## What goes on the map
+## Risk classification
 
-Every primitive this subject touches, plus the immediate neighbours needed for the
-relationships to make sense — and nothing else. You are drawing the
-neighbourhood, not the city.
+Classify each touched primitive, then roll up to the highest severity as the
+overall classification (`adds` > `extends` > `composes`):
 
-Keep it under about a dozen nodes. If you are past that, you are mapping the
-codebase rather than the change: collapse the ones that move together into a
-single named primitive and say so in the table. A diagram nobody can take in
-at a glance has failed at the only thing it was for.
+| Classification | Meaning                                                    | Risk   |
+| -------------- | ---------------------------------------------------------- | ------ |
+| `composes`     | Uses existing primitives as-is; wiring and call sites only | Low    |
+| `extends`      | Changes a primitive's behavior, shape, or contract         | Medium |
+| `adds`         | Introduces a new primitive (must update primitives.yaml)   | High   |
 
-Give every primitive one of exactly four statuses, and use these words:
+## Block format
 
-- **New** — this PR introduces it.
-- **Changed** — its shape or behaviour is different after this PR.
-- **Touched** — it is called differently or wired up differently, but the
-  primitive itself is unchanged.
-- **Context** — unchanged and unaffected, on the map only because the
-  relationships do not read without it.
+The block lives in the PR description between HTML comment markers, wrapped in
+`<details>`. Fixed section order — a future ingestion process parses this
+structure. Omit optional sections rather than leaving them empty.
 
-## Output
+````markdown
+<!-- system-recap:start -->
 
-in this order:
+<details>
+<summary>System recap — <b>composes existing primitives</b> (low risk)</summary>
 
-**The map.** A mermaid `flowchart TD` in a fenced ` ```mermaid ` block.
-GitHub renders these, but its parser is brittle: put every node label in
-double quotes, so `A["Session store"]` and never `A[Session store]`.
-Parentheses, slashes and colons inside an unquoted label break the whole
-diagram, and a broken diagram posts as a wall of source. Label the edges with
-the actual relationship — "writes", "enqueues", "reads through", "replaces" —
-never a bare arrow, because the arrows are the entire point of drawing this.
+**Mode:** recap · **Base:** `main` @ `abc1234` · **Head:** `def5678`
 
-**The primitive table.** One row per node on the map, same names as the map
-uses, columns: Primitive | Status | Role. Role is one line on what it does in
-this system — its job, not its diff. Order the table New, Changed, Touched,
-Context.
+**Classification:** composes — no primitives added or changed; this PR wires
+existing primitives together.
 
-**A closing line** on what the shape of the change is: which primitive is the
-centre of gravity, and anything the map makes visible that a file-by-file
-reading would not. One or two sentences. This is where you earn the comment.
+### Primitives touched
 
-Then a link to the hangar thread you ran in (`$HANGAR_THREAD_URL`), so a
-person can argue with your reading.
+| Primitive    | Group    | Impact                                  |
+| ------------ | -------- | --------------------------------------- |
+| `mcp-server` | surfaces | composes                                |
+| `d1-app-db`  | storage  | extends — new `jobs.retry_count` column |
 
-If you cannot tell what the PR affects — the diff is generated, vendored, or
-opaque — say that plainly in the comment and stop. A confident map of a
-change you did not understand is the one genuinely bad outcome here.
+### System map
 
-## Never
+```mermaid
+flowchart LR
+	mcpServer["mcp-server"]:::touched
+	capabilityRegistry["capability-registry"]:::untouched
+	d1AppDb["d1-app-db"]:::extended
+	mcpServer --> capabilityRegistry --> d1AppDb
+	classDef touched fill:#1a7f37,color:#fff
+	classDef extended fill:#9a6700,color:#fff
+	classDef added fill:#cf222e,color:#fff
+	classDef untouched fill:#57606a,color:#fff
+```
 
-- Review the code. No bugs, no style, no approval, no request for changes, no severity. those lanes belong to others, and a second opinion nobody asked for is what makes a PR unreadable.
+### Change flow
+
+_Optional: a mermaid flowchart or sequence diagram of the specific change._
+
+### Before / after
+
+_Optional: schema, API shape, or route changes as compact before/after fenced
+blocks or tables._
+
+### Invariants
+
+_Optional: only when the change touches an invariant from primitives.yaml._
+
+### Plan vs actual
+
+_Recap mode only, when a plan-mode block existed: what shipped as planned and
+what drifted, in a short list._
+
+</details>
+
+<!-- system-recap:end -->
+````
+
+Format rules:
+
+- The `<summary>` line always carries the overall classification and risk in
+  bold so reviewers see it without expanding.
+- Blank line after `<summary>` and around every fenced block, or GitHub will not
+  render the markdown/mermaid inside `<details>`.
+- **System map**: show touched primitives plus their immediate neighbors from
+  the map — not all ~25 nodes. Color with the four `classDef` styles above
+  (`touched` = composes, `extended`, `added`, `untouched` for context nodes).
+  Quote node labels containing spaces or special characters.
+- Keep the whole block scannable: prefer tables and diagrams over prose, and
+  keep it well under ~120 lines.
+
+## Workflow
+
+### Recap mode (PR create/update)
+
+1. Get the facts: `gh pr view <n> --json baseRefName,headRefName`, then
+   `git diff <base>...HEAD --stat` and the full diff for anything you did not
+   author this session.
+2. Map changed paths to primitives via the map's `code` entries; classify each;
+   roll up the overall classification.
+3. Author the block following the format above.
+4. Upsert it into the PR description:
+
+   ```bash
+   node <whereever-this-skill-is>/map-it/scripts/upsert-recap-block.mjs <pr-number> <block-file>
+   ```
+
+   The script replaces the content between the markers, or appends the block to
+   the end of the description on first run. It never touches text outside the
+   markers.
+
+6. Re-run steps 2-5 after pushing significant new commits to the PR.
+
+### Plan mode
+
+Same steps, except: `**Mode:** plan`, no Base/Head commits required, "Primitives
+touched" describes intended impact, and add a one-line note when the plan
+requires **no** change to any primitive — that is the lowest-risk outcome and
+worth stating explicitly. When implementation later diverges from the plan, the
+recap's "Plan vs actual" section records the drift.
